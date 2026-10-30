@@ -1,6 +1,6 @@
 ![banner](assets/banner.png)
 
-# Ultimate Regex Crossword Solver
+# Regex Crossword Solver
 
 A regex crossword solver written in Python. It parses each row and column regex with a PLY grammar (see `grammar.md`), turns the puzzle into an SMT problem, and solves it with Z3. Backreferences are supported, so puzzles that use groups and references such as `\1` can be solved, including rectangular puzzles.
 
@@ -24,8 +24,8 @@ The test suite runs on the standard library `unittest` runner. It does not need 
 ## Run the example solver
 
 ```bash
-git clone https://github.com/Epsilon0xCell/Ultimate-Regex-Crossword-Solver.git
-cd Ultimate-Regex-Crossword-Solver
+git clone https://github.com/Epsilon0xCell/Regex-Crossword-Solver.git
+cd Regex-Crossword-Solver
 pip install ply z3-solver
 python3 custom-solver.py
 ```
