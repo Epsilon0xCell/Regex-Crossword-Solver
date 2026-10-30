@@ -95,10 +95,10 @@ class RegexSolver:
             raise ValueError("Unknown regex_parser type '%s'" % repr(ty))
 
     def _sat_expr(self, x, r, i, l):
-        # I test the length set before I build anything. Most dead
-        # branches die on this one test. Without it, the recursion
-        # would build large Z3 terms for splits that can never fit the
-        # line, and big grids would slow down for no gain.
+        # I test the length set before I build anything. A split whose
+        # length is not in the set can never match this line, so I hand
+        # back False at once instead of letting the recursion build Z3
+        # terms for it and find the same answer at the bottom.
         if l not in self._len_set(r):
             return z3.BoolVal(False)
         if i + l > self.length:
@@ -113,9 +113,10 @@ class RegexSolver:
             return (x[i] == ord(r[1]))
 
         elif ty == regex_parser.DOT:
-            # A dot costs one Or branch per character in CHARSET. It is
-            # the widest node I build, which is why dot heavy rows are
-            # the slow ones in a real grid.
+            # A dot costs one Or branch per character in CHARSET,
+            # close to a hundred of them. A plain letter, in the CHAR
+            # branch above, is a single equality. That gap is the size
+            # difference between the two node kinds in every term here.
             expr = z3.BoolVal(False)
             for ch in regex_parser.CHARSET:
                 expr = z3.Or(expr, x[i] == ord(ch))
@@ -202,8 +203,8 @@ class RegexSolver:
 
     def sat_expr(self):
         # I simplify once, here at the end, instead of inside the
-        # recursion. Simplifying at every node cost more time than it
-        # saved on the grids I run.
+        # recursion, so _sat_expr above stays a plain term builder
+        # with no simplify calls mixed into its branches.
         expr = self._sat_expr(self.x, self.regex, 0, self.length)
         return z3.simplify(expr)
 

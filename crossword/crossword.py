@@ -1,6 +1,8 @@
-# I keep the grid code thin on purpose. This file owns the shape of the
-# puzzle and the shared cells. All pattern meaning lives in
-# regex_parser and regex_solver, so a pattern bug has one home.
+# This file never looks inside a pattern. It builds one set of cell
+# variables, hands each row and column string to RegexSolver, and
+# reads characters back out of the finished model. When a solve goes
+# wrong, the place to open follows from what went wrong: grid shape
+# here, the parse tree in regex_parser, the Z3 terms in regex_solver.
 import z3
 
 from .regex_solver import RegexSolver
