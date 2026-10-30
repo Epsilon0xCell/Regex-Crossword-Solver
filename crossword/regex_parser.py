@@ -103,7 +103,10 @@ class RegexParser:
         self.backrefs.add(int(p[2]))
     def p_factor_set(self, p):
         """factor : set"""
-        chars = list(p[1])
+        # Sort the set so the parse tree is deterministic. Iterating a set
+        # directly made the BAR order, and the tests checking it, depend
+        # on hash randomization.
+        chars = sorted(p[1])
         chars = map(lambda x: (CHAR, x), chars)
         p[0] = reduce(lambda x, y: (BAR, x, y), chars)
     def p_factor_escape(self, p):
@@ -141,13 +144,19 @@ class RegexParser:
         """factor : factor LBRACE number RBRACE"""
         inner = p[1]
         times = int(p[3])
-        p[0] = reduce(lambda x, y: (CONCAT, x, y), [inner for _ in range(times)])
+        if times == 0:
+            p[0] = (EMPTY,)
+        else:
+            p[0] = reduce(lambda x, y: (CONCAT, x, y), [inner for _ in range(times)])
     def p_factor_brace_2(self, p):
         """factor : factor LBRACE number COMMA RBRACE"""
         inner = p[1]
         times = int(p[3])
-        prefix = reduce(lambda x, y: (CONCAT, x, y), [inner for _ in range(times)])
-        p[0] = (CONCAT, prefix, (STAR, inner))
+        if times == 0:
+            p[0] = (STAR, inner)
+        else:
+            prefix = reduce(lambda x, y: (CONCAT, x, y), [inner for _ in range(times)])
+            p[0] = (CONCAT, prefix, (STAR, inner))
     def p_factor_brace_3(self, p):
         """factor : factor LBRACE number COMMA number RBRACE"""
         inner = p[1]
@@ -156,6 +165,7 @@ class RegexParser:
         cases = []
         for l in range(times1, times2+1):
             if l == 0:
+                cases.append((EMPTY,))
                 continue
             case = reduce(lambda x, y: (CONCAT, x, y), [inner for _ in range(l)])
             cases.append(case)

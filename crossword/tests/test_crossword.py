@@ -1,7 +1,14 @@
 import unittest
 import re
-from nose.tools import nottest
 from ..crossword import solve_crossword
+
+
+def nottest(fn):
+    # Local replacement for nose.tools.nottest: marks a helper so test
+    # runners do not collect it as a test. Helpers here are named do_test
+    # or record_answer and are called by the real tests.
+    fn.__test__ = False
+    return fn
 import sys
 import inspect
 

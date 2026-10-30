@@ -2,6 +2,10 @@
 
 # Presented on replit, remove sudo statements if needed
 
+# Run from the folder this script lives in, so custom-solver.py is found
+# no matter where the script is launched from.
+cd "$(dirname "$0")" || exit 1
+
 # If you want to solve official challenges you can either review notes or modify the custom solver
 
 text="Epsilon0xCell"

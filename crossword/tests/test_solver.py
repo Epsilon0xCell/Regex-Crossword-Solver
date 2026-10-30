@@ -1,8 +1,15 @@
 import unittest
 import re
 import z3
-from nose.tools import nottest
 from ..regex_solver import RegexSolver
+
+
+def nottest(fn):
+    # Local replacement for nose.tools.nottest: marks a helper so test
+    # runners do not collect it as a test. The helper here is named
+    # do_test and is called by the real tests.
+    fn.__test__ = False
+    return fn
 
 class SolverTestCase(unittest.TestCase):
     @nottest
@@ -80,6 +87,16 @@ class QuantifierTest(SolverTestCase):
         self.do_test("a{2,4}", 3)
         self.do_test("a{2,4}", 4)
         self.do_test("a{2,4}", 5, False)
+    def test_brace_zero(self):
+        self.do_test("a{0}", 0)
+        self.do_test("a{0}", 1, False)
+        self.do_test("a{0,0}", 0)
+        self.do_test("a{0,}", 0)
+        self.do_test("a{0,}", 2)
+        self.do_test("a{0,2}", 0)
+        self.do_test("a{0,2}", 1)
+        self.do_test("a{0,2}", 2)
+        self.do_test("a{0,2}", 3, False)
 
 class BracketTest(SolverTestCase):
     def test_simple(self):

@@ -1,6 +1,13 @@
 import unittest
-from nose.tools import nottest
 from ..regex_parser import *
+
+
+def nottest(fn):
+    # Local replacement for nose.tools.nottest: marks a helper so test
+    # runners do not collect it as a test. Helpers here are named do_test
+    # or do_bracket_test and are called by the real tests.
+    fn.__test__ = False
+    return fn
 
 parser = RegexParser()
 
@@ -107,7 +114,10 @@ class BraceTest(ParserTestCase):
                                      (CONCAT, (CONCAT, (CHAR, 'A'), (CHAR, 'A')),
                                               (CHAR, 'A'))))
     def test_four(self):
-        self.do_test("A{0,1}", (CHAR, 'A'))
+        # A{0,1} matches the empty string or one A. The old expectation of
+        # a bare (CHAR, 'A') encoded the parser bug that dropped the
+        # zero-repetition case.
+        self.do_test("A{0,1}", (BAR, (EMPTY,), (CHAR, 'A')))
 
 class GroupTest(ParserTestCase):
     def test_simple(self):
@@ -171,8 +181,11 @@ class ComplexTest(ParserTestCase):
                         (CONCAT, (GROUP, 1, (CONCAT, (CHAR, 'B'), (CHAR, 'C'))),
                                  (CHAR, 'D')))
         self.do_test("A(BC)D", root, [(CONCAT, (CHAR, 'B'), (CHAR, 'C'))], set())
+        # Character sets are parsed in sorted order, so [BC] is the BAR of
+        # B then C. The old C then B expectation only passed when set
+        # iteration happened to yield that order.
         root = (CONCAT, (CHAR, 'A'),
-                        (CONCAT, (BAR, (CHAR, 'C'), (CHAR, 'B')),
+                        (CONCAT, (BAR, (CHAR, 'B'), (CHAR, 'C')),
                                  (CHAR, 'D')))
         self.do_test("A[BC]D", root)
         self.do_test("(AB)*", (STAR, (GROUP, 1, (CONCAT, (CHAR, 'A'), (CHAR, 'B')))),
