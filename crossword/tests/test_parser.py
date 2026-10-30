@@ -9,7 +9,7 @@ class ParserTestCase(unittest.TestCase):
     def do_test(self, regex, root, groups=[], backrefs=set()):
         first = parser.parse(regex)
         second = {'groups': groups, 'root': root, 'backrefs': backrefs}
-        self.assertEquals(first, second)
+        self.assertEqual(first, second)
     @staticmethod
     @nottest
     def extract_chars(root):
