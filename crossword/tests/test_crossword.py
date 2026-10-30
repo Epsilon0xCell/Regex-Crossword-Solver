@@ -24,6 +24,11 @@ class CrosswordTestCase(unittest.TestCase):
 
     @nottest
     def do_test(self, rows, cols, rows2=None, cols2=None):
+        # I do not compare against stored answer grids here. I check
+        # the returned grid against every clue with the re module, in
+        # both directions and in both clue sets. A grid that satisfies
+        # all of its clues is right even if it is not the grid the
+        # puzzle author had in mind.
         answer = solve_crossword(rows, cols, rows2, cols2)
         #self.record_answer(answer)
         for row in answer:

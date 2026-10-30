@@ -2,9 +2,17 @@ import z3
 
 from . import regex_parser
 
+# I keep one parser for the whole module. Sharing it is only safe
+# because parse resets its group tables on every call, and in return I
+# do not rebuild the PLY tables for every row and column of a grid.
 _parser = regex_parser.RegexParser()
 
 class RegexSolver:
+    # This counter is class level and never resets, on purpose. A
+    # crossword builds many RegexSolver objects that all feed one Z3
+    # solver, and each group start variable needs a name no other
+    # object has used. Letting the count climb for the life of the
+    # process is how I get names that never collide inside one solve.
     scratch_var_cnt = 0
 
     def __init__(self, length, regex, x):
@@ -21,6 +29,9 @@ class RegexSolver:
             RegexSolver.scratch_var_cnt += 1
 
     def _set_sum(self, a, b):
+        # I drop sums over the line length right here. A part that is
+        # already too long can never shrink back, so keeping those
+        # lengths would only grow every set built above this one.
         s = set()
         for i in a:
             for j in b:
@@ -68,6 +79,9 @@ class RegexSolver:
             return self._len_set(r[2])
 
         elif ty == regex_parser.BACKREF:
+            # A backref is exactly as long as the group it points at. I
+            # ask the group tree for its lengths instead of keeping a
+            # second record that could disagree with it.
             idx = r[1] - 1
             return self._len_set(self.groups[idx])
 
@@ -81,6 +95,10 @@ class RegexSolver:
             raise ValueError("Unknown regex_parser type '%s'" % repr(ty))
 
     def _sat_expr(self, x, r, i, l):
+        # I test the length set before I build anything. Most dead
+        # branches die on this one test. Without it, the recursion
+        # would build large Z3 terms for splits that can never fit the
+        # line, and big grids would slow down for no gain.
         if l not in self._len_set(r):
             return z3.BoolVal(False)
         if i + l > self.length:
@@ -95,6 +113,9 @@ class RegexSolver:
             return (x[i] == ord(r[1]))
 
         elif ty == regex_parser.DOT:
+            # A dot costs one Or branch per character in CHARSET. It is
+            # the widest node I build, which is why dot heavy rows are
+            # the slow ones in a real grid.
             expr = z3.BoolVal(False)
             for ch in regex_parser.CHARSET:
                 expr = z3.Or(expr, x[i] == ord(ch))
@@ -134,6 +155,12 @@ class RegexSolver:
             return expr
 
         elif ty == regex_parser.GROUP:
+            # This branch has a side effect I depend on. When the group
+            # is used by a backref, I record where it can start in
+            # possible_pos, and the BACKREF branch below reads that
+            # list. It works because the walk reaches the group before
+            # the backref in the patterns I feed it. A pattern that puts
+            # the backref first gets an empty list and can never match.
             idx = r[1] - 1
             inner = r[2]
             if (idx+1) in self.backrefs:
@@ -174,6 +201,9 @@ class RegexSolver:
             raise ValueError("Unknown regex_parser type '%s'" % repr(ty))
 
     def sat_expr(self):
+        # I simplify once, here at the end, instead of inside the
+        # recursion. Simplifying at every node cost more time than it
+        # saved on the grids I run.
         expr = self._sat_expr(self.x, self.regex, 0, self.length)
         return z3.simplify(expr)
 

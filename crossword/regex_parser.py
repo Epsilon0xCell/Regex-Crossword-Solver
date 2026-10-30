@@ -5,8 +5,16 @@ import ply.lex as lex
 import ply.yacc as yacc
 
 [EMPTY, CHAR, DOT, STAR, BAR, CONCAT, GROUP, BACKREF, CARET, DOLLAR] = range(10)
+# CHARSET is the whole alphabet a dot or a negated set can draw from.
+# A character outside this string can never appear in an answer, and a
+# negated set is only negated inside this list, not inside all of
+# Unicode. When a puzzle needs a new character, it goes here first.
 CHARSET = string.ascii_lowercase + string.ascii_uppercase + string.digits + " :/'!" + ".*+?|()[]^-{},\\"
 
+# I only define s and d here, and s means one space, not all
+# whitespace. A backslash letter that is not in this table and is not
+# punctuation raises SyntaxError below instead of passing through as a
+# quiet literal.
 character_classes = {
     's' : " ",
     'd' : "0123456789",
@@ -39,6 +47,10 @@ class RegexLexer:
     t_BACKSLASH = r"\\"
 
     def t_error(self, t):
+        # PLY prints this and then skips the bad character. A typo in a
+        # puzzle string does not crash the parse here, it quietly
+        # changes the pattern, so I treat this print as a real signal
+        # when a solve looks wrong.
         print ("Lexer error at '%s'" % t.value[0])
 
     def __init__(self):
@@ -53,6 +65,10 @@ class RegexParser:
         """regex : outer_term BAR regex"""
         p[0] = (BAR, p[1], p[3])
 
+    # Anchors only exist at this outer level. A caret or dollar sign in
+    # the middle of a pattern is read as a plain character by the factor
+    # rules, not as an anchor, which matches how the puzzle sources use
+    # them inside groups.
     def p_outer_term_term(self, p):
         """outer_term : term"""
         p[0] = p[1]
@@ -89,12 +105,21 @@ class RegexParser:
         p[0] = (STAR, p[1])
     def p_factor_plus(self, p):
         """factor : factor PLUS"""
+        # I expand plus into the factor followed by the same factor
+        # starred, reusing one subtree object in both spots. The solver
+        # only reads the tree, so sharing it is safe, and plus can never
+        # drift apart from what star means.
         p[0] = (CONCAT, p[1], (STAR, p[1]))
     def p_factor_question(self, p):
         """factor : factor QUESTION"""
         p[0] = (BAR, p[1], (EMPTY,))
     def p_factor_group(self, p):
         """factor : LPAREN regex RPAREN"""
+        # I number a group when this rule runs, which is when its
+        # closing paren has been read. With nested groups the inner one
+        # finishes first, so my numbers follow closing order. Backrefs
+        # use these same numbers, so the two sides stay consistent even
+        # where that order differs from opening order.
         self.groups.append(p[2])
         p[0] = (GROUP, len(self.groups), p[2])
     def p_factor_backref(self, p):
@@ -159,6 +184,10 @@ class RegexParser:
             p[0] = (CONCAT, prefix, (STAR, inner))
     def p_factor_brace_3(self, p):
         """factor : factor LBRACE number COMMA number RBRACE"""
+        # I expand a range into one case per allowed count, joined by
+        # BAR below. Counts in real puzzles are small, and one case per
+        # count keeps the solver side simple. A huge range would build
+        # a huge tree, so I do not feed this parser ranges like {1,500}.
         inner = p[1]
         times1 = int(p[3])
         times2 = int(p[5])
@@ -173,6 +202,9 @@ class RegexParser:
 
     def p_number_single(self, p):
         """number : DIGIT"""
+        # Numbers stay digit strings while they are built, one digit at
+        # a time, so {12} arrives as the string 12. The int conversion
+        # happens in the brace rules that use the number, not here.
         p[0] = p[1]
     def p_number_multiple(self, p):
         """number : DIGIT number"""
@@ -183,6 +215,10 @@ class RegexParser:
         p[0] = p[2]
     def p_set_negative(self, p):
         """set : LBRACKET CARET set_items RBRACKET"""
+        # I take the complement against CHARSET only. If every CHARSET
+        # character is listed, this set comes out empty, and the reduce
+        # in p_factor_set then has nothing to join. That empty case is
+        # a known sharp edge, not a supported pattern.
         p[0] = set(set(CHARSET) - p[3])
 
     def p_set_items_single(self, p):
@@ -236,6 +272,10 @@ class RegexParser:
         p[0] = p[1]
 
     def p_error(self, p):
+        # I print and let PLY stop the parse. The caller can get a
+        # missing or partial tree out of a bad pattern instead of a
+        # clean exception, so this print is the signal I look for first
+        # when a puzzle string is malformed.
         print ("Parse error at '%s'" % p.value)
 
     def __init__(self):
@@ -244,6 +284,10 @@ class RegexParser:
         self.parser = yacc.yacc(module=self)
 
     def parse(self, s):
+        # I reset the group tables on every parse because one parser
+        # object is shared for a whole process in regex_solver. Without
+        # this reset, group numbers from one regex would leak into the
+        # next regex and backrefs would point at the wrong groups.
         self.groups = []
         self.backrefs = set()
         root = self.parser.parse(s, self.lexer.lexer)

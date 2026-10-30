@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# I treat this file as a menu, not as one program. Options 1, 3, and 4
+# download an outside project and run it where it lands. Only option 2
+# runs code from this repo, and it needs ply and z3-solver installed
+# first. The other options can work while option 2 cannot, and the
+# other way around.
+
 # Presented on replit, remove sudo statements if needed
 
 # Run from the folder this script lives in, so custom-solver.py is found
@@ -29,6 +35,12 @@ options=(
     "Quit"
 )
 
+# Two warnings I keep in mind when I run this. The options use sudo
+# rm -rf on the download folder before cloning, so a rerun clears the
+# old copy instead of failing on it, and I never run this in a folder
+# that holds work I care about. And option 1 runs python2 because that
+# downloaded project is Python 2 era code, while my bundled solver in
+# option 2 is Python 3.
 PS3='Please choose an option: '
 select opt in "${options[@]}"; do
     case $opt in

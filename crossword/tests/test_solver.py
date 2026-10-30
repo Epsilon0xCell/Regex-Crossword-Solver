@@ -26,6 +26,10 @@ class SolverTestCase(unittest.TestCase):
         if has_solution:
             self.assertTrue(check == z3.sat)
             if check == z3.sat:
+                # I check the Z3 answer with the re module below. The
+                # string has exactly the tested length, so a match has
+                # to cover all of it even though re.match on its own
+                # does not anchor the end of a string.
                 model = solver.model()
                 s = ""
                 for i in range(length):
