@@ -1,10 +1,18 @@
-![banner](assets/banner.png)
+![Intro scenery](intro-banner.png)
+
 
 # Regex Crossword Solver
+
+![Wordmark banner](banner.png)
+
+![Animated scene](scene.svg)
 
 A regex crossword solver written in Python. It parses each row and column regex with a PLY grammar (see `grammar.md`), turns the puzzle into an SMT problem, and solves it with Z3. Backreferences are supported, so puzzles that use groups and references such as `\1` can be solved, including rectangular puzzles.
 
 Codename: Red Robin.
+
+
+![Separator](sep-heavy.svg)
 
 ## What is in this repo
 
@@ -71,3 +79,5 @@ The bundled solver is based on the regex crossword solver by blukat29. The shell
 - https://github.com/dneiter/regex-crossword
 - https://github.com/deepaksood619/RegexCrossword
 - https://github.com/blukat29/regex-crossword-solver
+
+> **Log margin note:** mistyped row counts solve the wrong shape, so check the clue counts before blaming the solver. PLY also leaves parser.out and parsetab.py behind until make clean runs.

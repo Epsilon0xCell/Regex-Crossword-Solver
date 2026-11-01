@@ -3,165 +3,52 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Regex Crossword Solver: what it is, how it runs, where it stops</title>
-<meta name="description" content="A regex crossword solver written in Python. It parses each row and column regex with a PLY grammar (see grammar.md), turns the puzzle into an SMT prob">
+<title>Regex-Crossword-Solver: The Apron Movement Log</title>
+<meta name="description" content="A Python solver that parses row and column regular expressions through a PLY grammar, converts the grid into an SMT problem, and returns the letters Z3 finds.">
 <style>
-:root {
-  --bg: #121418; --panel: #1c2028; --ink: #e8ecf0;
-  --mut: #252b36;
-  --acc: #5cc8e0; --acc2: #f0a05c;
-  --line: #1c2028;
-}
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--ink);
-  font-family: 'Palatino Linotype', Palatino, serif; line-height: 1.55; }
-code, pre, .mono { font-family: 'Menlo', monospace; }
-a { color: var(--acc2); }
-.hero { padding: 3rem 6vw 1rem; }
-.hero img.banner { width: 100%; height: auto; border: 1px solid var(--line);
-  border-radius: 10px; }
-.logo { width: 92px; height: 92px; border-radius: 18px;
-  border: 1px solid var(--line); }
-h1 { font-size: 2.4rem; margin: 0.4em 0 0.1em; }
-h2 { border-bottom: 2px solid var(--acc); padding-bottom: 0.2em;
-  margin-top: 2em; }
-.lede { font-size: 1.15rem; max-width: 62ch; }
-main { padding: 0 6vw 3rem; max-width: 1180px; margin: 0 auto; }
-.grid { display: grid; gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
-.card { background: var(--panel); border: 1px solid var(--line);
-  border-radius: 12px; padding: 1rem 1.2rem; }
-.card.pop { animation: rise 0.7s ease both; }
-@keyframes rise { from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: none; } }
-pre.code { background: #101014; color: #e8e6df; padding: 1rem 1.2rem;
-  border-radius: 12px; overflow-x: auto; font-size: 0.86rem;
-  border-left: 5px solid var(--acc); }
-table { border-collapse: collapse; width: 100%; }
-td, th { border-bottom: 1px solid var(--line); padding: 0.45rem 0.6rem;
-  text-align: left; }
-.shots { display: grid; gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-.shots img { width: 100%; height: auto; border: 1px solid var(--line);
-  border-radius: 10px; background: #f4f1e8; }
-footer { padding: 2rem 6vw; border-top: 1px solid var(--line);
-  color: var(--mut); }
-.rail { display: flex; gap: 1.2rem; align-items: flex-start; }
-.rail nav { position: sticky; top: 1rem; min-width: 180px; }
-@media (max-width: 760px) { .rail { flex-direction: column; }
-  .rail nav { position: static; } }
-@media (prefers-reduced-motion: reduce) {
-  .card.pop { animation: none; } * { scroll-behavior: auto; } }
+@font-face{font-family:'Anek Bangla';src:url('fonts/AnekBangla.ttf') format('truetype');}
+@font-face{font-family:'Alegreya Sans';src:url('fonts/AlegreyaSans-Regular.ttf') format('truetype');}
+:root{--green:#264a34;--panel:#33363a;--grey:#7a7c76;--dust:#b0986e;--red:#ce2c26;--cream:#faf0c8;--ink:#ece9dc}
+*{box-sizing:border-box} body{margin:0;background:var(--green);color:var(--ink);font-family:'Alegreya Sans',sans-serif;line-height:1.6}
+h1,h2,h3{font-family:'Anek Bangla',sans-serif;letter-spacing:.04em}
+.hero{padding:2rem 6vw 1rem}.hero img.banner{width:100%;height:auto;border:3px solid #101010}
+.logo{width:92px;height:92px}
+main{padding:0 6vw 3rem;max-width:1100px;margin:0 auto}
+.logrow{background:#4a4d4a;border-left:14px solid var(--dust);padding:1rem 1.3rem;margin:1rem 0;position:relative}
+.logrow:before,.logrow:after{content:'';position:absolute;left:-10px;width:6px;height:6px;border-radius:50%;background:var(--green)}
+.logrow:before{top:14px}.logrow:after{bottom:14px}
+.stamp{position:absolute;right:12px;bottom:10px;border:2px solid var(--grey);padding:.1rem .5rem;font-family:'Anek Bangla',sans-serif}
+.stamp.none{border-color:var(--red);color:#ffb3ae}
+.btn{display:inline-block;background:var(--panel);color:var(--cream);font-family:'Anek Bangla',sans-serif;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;padding:.9rem 1.2rem .55rem;border-top:12px solid transparent;border-image:repeating-linear-gradient(90deg,#e8c43e 0 12px,#101010 12px 24px) 12;margin:.3rem .3rem .3rem 0}
+.btn:hover{color:#fff}.btn:active{background:var(--cream);color:var(--panel)}
+.btn:focus-visible{outline:3px solid var(--red);outline-offset:3px}
+a{color:var(--cream)} a .lamp{display:inline-block;width:.62em;height:.62em;border:2px solid var(--grey);border-radius:50%;margin-right:.35em}
+a:hover .lamp{background:var(--cream)}
+.rule{height:6px;background:var(--dust);margin:2rem 0;position:relative}
+.tab{display:inline-block;background:var(--green);border:1px solid var(--dust);border-bottom:8px solid transparent;border-image:repeating-linear-gradient(90deg,#e8c43e 0 10px,#101010 10px 20px) 8;padding:.3rem .8rem;font-family:'Anek Bangla',sans-serif}
+pre{background:#202226;color:#f2ecd8;padding:1rem;overflow-x:auto}
+footer{padding:2rem 6vw;color:#cfc9b4}
 </style>
 </head>
-<body class="layout-note">
-<!-- This page exists for Regex-Crossword-Solver alone: the layout (notebook),
-     the colors, and the type were picked for this project, not
-     shared with the other project pages. The code block below is
-     copied from the file it names, line for line. If it looks
-     plain, that is because the project is plain, and I would
-     rather the page match the project than dress it up. The one
-     thing I will not do here is oversell: what this project does
-     not do is stated on the page, not hidden from it. -->
+<body>
 <header class="hero">
-  <img class="logo" src="assets/logo.png" alt="Regex Crossword Solver logo">
-  <img class="banner" src="assets/banner.png" alt="">
-  <h1>Regex Crossword Solver</h1>
-  <p class="mono"><a href="https://github.com/Epsilon0xCell/Regex-Crossword-Solver">github.com/Epsilon0xCell/Regex-Crossword-Solver</a></p>
+<img class="logo" src="assets/logo.png" alt="Follow me car sign logo">
+<img class="banner" src="assets/banner.png" alt="Follow me car with a lit sign guiding a parked jet at blue hour">
+<h1>Regex-Crossword-Solver</h1>
+<p>A Python solver that parses row and column regular expressions through a PLY grammar, converts the grid into an SMT problem, and returns the letters Z3 finds, backreferences such as \1 included. This page is the apron movement log: each guided arrival gets one row and a result.</p>
+<p><a class="btn" href="https://github.com/Epsilon0xCell/Regex-Crossword-Solver"><span>Open the repo</span></a> <a class="btn" href="#gate"><span>Gate checks</span></a></p>
 </header>
-
 <main>
-  <section class="rail">
-    <nav aria-label="on this page">
-      <p class="mono"><a href="#run">Run it</a><br>
-      <a href="#files">The files</a><br>
-      <a href="#sheets">The sheets</a><br>
-      <a href="https://github.com/Epsilon0xCell/Regex-Crossword-Solver">The repo</a></p>
-    </nav>
-    <div>
-      <p class="lede">A regex crossword solver written in Python. It parses each row and column regex with a PLY grammar (see grammar.md), turns the puzzle into an SMT problem, and solves it with Z3. Backreferences are supported, so puzzles that use groups and references such as \1 can be solved, including rectangular pu</p>
-      <div class="grid">
-        <div class="card pop"><h3>What it is</h3>
-          <p>Regex Crossword Solver: 18 files, 1246 counted
-          lines across Python 991, Markdown 160, Shell 75. One job, done in the
-          open, in files you can read.</p></div>
-        <div class="card pop"><h3>The biggest piece</h3>
-          <p><code>crossword/regex_parser.py</code> carries the most
-          lines. If the project grows, that file is where the growth
-          lands first, for better or worse.</p></div>
-        <div class="card pop"><h3>The honest gap</h3>
-          <p>3 test files sit in the tree.</p></div>
-      </div>
-      <section id="run">
-        <h2>Run it</h2>
-        <p>The repo README has the exact commands for this one. The
-        shape is the shape for most of my projects: clone it, read the
-        top file first so you know what will happen, then run it on
-        something you do not mind breaking.</p>
-        <p class="mono">$ git clone https://github.com/Epsilon0xCell/Regex-Crossword-Solver.git<br>$ cd Regex-Crossword-Solver</p>
-      </section>
-      
-  <section aria-label="real code">
-    <h2>The code, as it sits in the repo</h2>
-    <p>From <code>crossword/regex_parser.py</code>, line 13 on. I did
-    not tidy it for the page. What you see is what the file has.</p>
-    <pre class="code"><code>}
-
-class RegexLexer:
-    tokens = (
-        &quot;NON_META_CHAR&quot;, &quot;DIGIT&quot;,
-        &quot;DOT&quot;, &quot;STAR&quot;, &quot;PLUS&quot;, &quot;QUESTION&quot;,
-        &quot;BAR&quot;,
-        &quot;LPAREN&quot;, &quot;RPAREN&quot;,
-        &quot;LBRACKET&quot;, &quot;RBRACKET&quot;,
-        &quot;CARET&quot;, &quot;DASH&quot;, &quot;DOLLAR&quot;,
-        &quot;LBRACE&quot;, &quot;RBRACE&quot;, &quot;COMMA&quot;,
-        &quot;BACKSLASH&quot;,
-    )
-
-    def t_NON_META_CHAR(self, t):
-        r&quot;[a-zA-Z :/&#x27;!]&quot;
-        return t
-    def t_DIGIT(self, t):
-        r&quot;[0-9]&quot;
-        return t
-    t_DOT, t_STAR, t_PLUS, t_QUESTION = r&quot;\.&quot;, r&quot;\*&quot;, r&quot;\+&quot;, r&quot;\?&quot;
-    t_BAR = r&quot;\|&quot;</code></pre>
-  </section>
-      <section id="files">
-        <h2>The files that matter</h2>
-        <table><tr><th>File</th><th>Lines</th></tr>
-        <tr><td><code>crossword/regex_parser.py</code></td><td>251</td></tr>
-        <tr><td><code>crossword/tests/test_parser.py</code></td><td>194</td></tr>
-        <tr><td><code>crossword/regex_solver.py</code></td><td>179</td></tr>
-        <tr><td><code>crossword/tests/test_solver.py</code></td><td>177</td></tr>
-        <tr><td><code>crossword/tests/test_crossword.py</code></td><td>98</td></tr>
-        <tr><td><code>ultimate-regex-solver.sh</code></td><td>75</td></tr>
-        </table>
-        <p>Names doing the work: <span class="mono">solve_crossword, solve_regex, RegexLexer, RegexParser, t_NON_META_CHAR, t_DIGIT, t_error, __init__</span>.</p>
-      </section>
-      <section id="sheets">
-        <h2>Drawn by hand</h2>
-        <p>I sketch my projects on notebook paper so I have to
-        understand them well enough to draw them. The full set,
-        with the counts and how they were counted, is the
-        <a href="https://github.com/Epsilon0xCell/Regex-Crossword-Solver/tree/main/Regex-Crossword-Solver-Visuals">Regex-Crossword-Solver-Visuals</a>
-        folder in the repo. Nothing is drawn over the binder holes.
-        That is a rule, not a style.</p>
-        <div class="shots">
-          <img src="assets/architecture.png" alt="Hand drawn architecture sheet for Regex Crossword Solver">
-          <img src="assets/flowchart.png" alt="Hand drawn flowchart sheet for Regex Crossword Solver">
-          <img src="assets/product-map.png" alt="Hand drawn product map sheet for Regex Crossword Solver">
-        </div>
-      </section>
-    </div>
-  </section>
+<p><span class="tab">Stand 1</span></p>
+<section class="logrow"><h2>The package</h2><p><code>crossword.py</code> offers <code>solve_crossword</code> with rows, cols, and the optional second clue sets rows2 and cols2, plus <code>solve_regex</code> for a single pattern at a fixed length. It returns a grid of single characters, or None when no solution exists.</p><span class="stamp">Grid or None</span></section>
+<section class="logrow"><h2>The parser pair</h2><p><code>regex_parser.py</code> holds the lexer and grammar described in <code>grammar.md</code>. <code>regex_solver.py</code> builds the Z3 expression for one pattern. Repetition counts may start at zero, and character sets are parsed in sorted order so parse trees stay stable.</p><span class="stamp">Parsed</span></section>
+<section class="logrow"><h2>The worked example</h2><p><code>custom-solver.py</code> tackles the 5 by 14 player puzzle recorded in <code>specs.md</code>, then the small Beatles Beginner Level 1 grid as a bonus check. Its verified output is:</p><pre>H  E
+L  P</pre><span class="stamp">HELP</span></section>
+<section class="logrow"><h2>The shell menu</h2><p><code>ultimate-regex-solver.sh</code>, stated honestly: option 2 runs the bundled example. Options 1, 3 and 4 only fetch outside projects at pinned commits and list files without running them. Credits in the repo name blukat29 and the outside projects the menu only downloads.</p><span class="stamp">Menu logged</span></section>
+<section class="logrow" id="gate"><h2>Gate checks</h2><p>Install with <code>pip install ply z3-solver</code> on Python 3, then run the unittest discovery, which finds 60 tests under <code>crossword/tests</code>.</p><pre>python3 -m unittest discover -s crossword -t .</pre><p>When Z3 finds no solution, the result is None, shown here in signal red as the log records it.</p><span class="stamp none">None</span></section>
+<p><a href="https://github.com/Epsilon0xCell/Regex-Crossword-Solver/tree/main/Regex-Crossword-Solver-Visuals"><span class="lamp"></span>Visuals folder in the repo</a></p>
+<div class="rule"></div>
 </main>
-<footer>
-  <p>Regex Crossword Solver is one of my projects. This page was written
-  from the repo itself on 2026-10-30: the counts are the
-  repo's counts, the code is the repo's code, and the gaps are the
-  repo's gaps.</p>
-</footer>
+<footer><p>Regex-Crossword-Solver is an apron movement log for a solver that touches no network: it parses patterns, builds Z3 terms, and returns letters.</p></footer>
 </body>
 </html>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 260" role="img" aria-label="Apron cross section with a follow me car driving past a parked jet">
+<rect width="1200" height="260" fill="#26382e"/>
+<rect x="0" y="0" width="1200" height="120" fill="#1e3029"/>
+<rect x="60" y="30" width="300" height="70" fill="#2c4a3e"/>
+<polygon points="700,100 800,60 880,100" fill="#232a28"/>
+<g fill="#ffc45c"><circle cx="1020" cy="96" r="4"><animate attributeName="opacity" values="1;.2;1" dur="2.4s" repeatCount="indefinite"/></circle><circle cx="1080" cy="96" r="4"><animate attributeName="opacity" values=".2;1;.2" dur="2.4s" repeatCount="indefinite"/></circle><circle cx="1140" cy="96" r="4"><animate attributeName="opacity" values="1;.2;1" dur="3.1s" repeatCount="indefinite"/></circle></g>
+<polygon points="980,20 1006,20 996,58 990,58" fill="#c47834"><animateTransform attributeName="transform" type="rotate" values="-4 993 22;5 993 22;-4 993 22" dur="7s" repeatCount="indefinite"/></polygon>
+<ellipse cx="560" cy="118" rx="150" ry="26" fill="#aeb4b6"/><polygon points="430,118 700,110 760,124 470,130" fill="#c9ccce"/>
+<g><animateTransform attributeName="transform" type="translate" values="-260 0;820 0" dur="26s" repeatCount="indefinite"/>
+<polygon points="120,196 330,196 306,150 146,150" fill="#264a34"/>
+<rect x="158" y="98" width="180" height="56" fill="#222426"/>
+<rect x="150" y="90" width="196" height="8" fill="#e8c43e"/><rect x="150" y="154" width="196" height="8" fill="#101010"/>
+<rect x="240" y="82" width="12" height="12" fill="#ce2c26"><animate attributeName="opacity" values="1;.35;1" dur="3s" repeatCount="indefinite"/></rect>
+<polygon points="330,178 430,190 430,204 330,196" fill="#ffe29e" opacity=".45"><animate attributeName="opacity" values=".3;.55;.3" dur="5s" repeatCount="indefinite"/></polygon>
+<circle cx="160" cy="200" r="18" fill="#141414"/><circle cx="316" cy="200" r="18" fill="#141414"/>
+<rect x="158" y="112" width="180" height="30" fill="#faf0c8"><animate attributeName="opacity" values=".75;1;.75" dur="4s" repeatCount="indefinite"/></rect></g>
+<rect x="0" y="222" width="1200" height="38" fill="#55554f"/>
+<path d="M0 238 Q 300 226 600 238 T 1200 238" stroke="#e8c43e" stroke-width="5" fill="none"/>
+<ellipse cx="300" cy="244" rx="130" ry="10" fill="#8fa0ad" opacity=".6"/>
+<polygon points="880,228 902,228 891,214" fill="#b0986e"/>
+</svg>
