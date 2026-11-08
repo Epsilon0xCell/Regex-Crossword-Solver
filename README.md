@@ -1,9 +1,9 @@
-![Intro scenery](intro-banner.png)
+![Intro: a fountain pen in a hand inking the last empty cell of a crossword grid, the cells around it filled with hatched ink strokes, graphite smudges soft at the edges, a red pen lying below](intro-banner.png)
 
 
 # Regex Crossword Solver
 
-![Wordmark banner](banner.png)
+<p align="center"><img src="logo.png" alt="Regex-Crossword-Solver logo: a macro square of crossword grid seen straight on, black and white cells in a neat block with one centre cell ringed in red pen" width="200"></p>
 
 ![Animated scene](scene.svg)
 
