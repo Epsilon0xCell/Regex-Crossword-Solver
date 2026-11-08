@@ -5,6 +5,8 @@
 
 <p align="center"><img src="logo.png" alt="Regex-Crossword-Solver logo: a macro square of crossword grid seen straight on, black and white cells in a neat block with one centre cell ringed in red pen" width="200"></p>
 
+![Banner: a crossword grid in close view, the filled cells shaded with pencil hatching running in every direction, small printed clue numbers in the corners of the open cells and no letters anywhere in the grid](banner.png)
+
 ![Animated scene](scene.svg)
 
 A regex crossword solver written in Python. It parses each row and column regex with a PLY grammar (see `grammar.md`), turns the puzzle into an SMT problem, and solves it with Z3. Backreferences are supported, so puzzles that use groups and references such as `\1` can be solved, including rectangular puzzles.
