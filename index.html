@@ -3,52 +3,60 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Regex-Crossword-Solver: The Apron Movement Log</title>
+<title>Regex-Crossword-Solver: The Crossword Page</title>
 <meta name="description" content="A Python solver that parses row and column regular expressions through a PLY grammar, converts the grid into an SMT problem, and returns the letters Z3 finds.">
 <style>
-@font-face{font-family:'Anek Bangla';src:url('fonts/AnekBangla.ttf') format('truetype');}
-@font-face{font-family:'Alegreya Sans';src:url('fonts/AlegreyaSans-Regular.ttf') format('truetype');}
-:root{--green:#264a34;--panel:#33363a;--grey:#7a7c76;--dust:#b0986e;--red:#ce2c26;--cream:#faf0c8;--ink:#ece9dc}
-*{box-sizing:border-box} body{margin:0;background:var(--green);color:var(--ink);font-family:'Alegreya Sans',sans-serif;line-height:1.6}
-h1,h2,h3{font-family:'Anek Bangla',sans-serif;letter-spacing:.04em}
-.hero{padding:2rem 6vw 1rem}.hero img.banner{width:100%;height:auto;border:3px solid #101010}
-.logo{width:92px;height:92px}
+@font-face{font-family:'Roboto Slab';src:url('fonts/roboto-slab-400.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Roboto Slab';src:url('fonts/roboto-slab-700.woff2') format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'Roboto Slab';src:url('fonts/roboto-slab-900.woff2') format('woff2');font-weight:900;font-display:swap}
+@font-face{font-family:'Inter';src:url('fonts/inter-400.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Inter';src:url('fonts/inter-600.woff2') format('woff2');font-weight:600;font-display:swap}
+@font-face{font-family:'Inter';src:url('fonts/inter-700.woff2') format('woff2');font-weight:700;font-display:swap}
+:root{--paper:#f6f1e1;--sheet:#fffdf4;--ink:#16150f;--graphite:#6f6a5c;--cell:#211f1a;--red:#bc2a1e;--line:#d8cfb2}
+*{box-sizing:border-box} body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.65}
+h1,h2,h3{font-family:'Roboto Slab',serif}
+.hero{padding:2.2rem 6vw 1rem;max-width:1100px;margin:0 auto}
+.hero img.heroimg{width:100%;height:auto;border:3px solid var(--ink);display:block}
+.logo{width:92px;height:92px;border:2px solid var(--ink)}
+h1{font-weight:900;font-size:2.3rem;margin:.7rem 0 .3rem}
+.gridstrip{height:26px;margin:1.2rem 0 0;background:repeating-conic-gradient(var(--ink) 0% 25%, #fffdf4 0% 50%) 0 0/26px 26px;border:2px solid var(--ink)}
 main{padding:0 6vw 3rem;max-width:1100px;margin:0 auto}
-.logrow{background:#4a4d4a;border-left:14px solid var(--dust);padding:1rem 1.3rem;margin:1rem 0;position:relative}
-.logrow:before,.logrow:after{content:'';position:absolute;left:-10px;width:6px;height:6px;border-radius:50%;background:var(--green)}
-.logrow:before{top:14px}.logrow:after{bottom:14px}
-.stamp{position:absolute;right:12px;bottom:10px;border:2px solid var(--grey);padding:.1rem .5rem;font-family:'Anek Bangla',sans-serif}
-.stamp.none{border-color:var(--red);color:#ffb3ae}
-.btn{display:inline-block;background:var(--panel);color:var(--cream);font-family:'Anek Bangla',sans-serif;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;padding:.9rem 1.2rem .55rem;border-top:12px solid transparent;border-image:repeating-linear-gradient(90deg,#e8c43e 0 12px,#101010 12px 24px) 12;margin:.3rem .3rem .3rem 0}
-.btn:hover{color:#fff}.btn:active{background:var(--cream);color:var(--panel)}
+.clue{background:var(--sheet);border:2px solid var(--ink);padding:1.1rem 1.4rem 1.1rem 3.4rem;margin:1.3rem 0;position:relative}
+.clue:before{content:'';position:absolute;left:14px;top:16px;width:20px;height:20px;background:var(--ink)}
+.clue.redcell:before{background:var(--red)}
+.clue h2{margin:.1rem 0 .4rem;font-weight:700;font-size:1.45rem}
+.clueno{position:absolute;right:14px;top:10px;font-family:'Roboto Slab',serif;font-weight:700;color:var(--graphite);font-size:.85rem}
+.btn{display:inline-block;background:var(--ink);color:var(--paper);font-family:'Roboto Slab',serif;font-weight:700;text-decoration:none;padding:.55rem 1.1rem;border:2px solid var(--ink);margin:.3rem .3rem .3rem 0}
+.btn:hover{background:var(--red);border-color:var(--red)}
 .btn:focus-visible{outline:3px solid var(--red);outline-offset:3px}
-a{color:var(--cream)} a .lamp{display:inline-block;width:.62em;height:.62em;border:2px solid var(--grey);border-radius:50%;margin-right:.35em}
-a:hover .lamp{background:var(--cream)}
-.rule{height:6px;background:var(--dust);margin:2rem 0;position:relative}
-.tab{display:inline-block;background:var(--green);border:1px solid var(--dust);border-bottom:8px solid transparent;border-image:repeating-linear-gradient(90deg,#e8c43e 0 10px,#101010 10px 20px) 8;padding:.3rem .8rem;font-family:'Anek Bangla',sans-serif}
-pre{background:#202226;color:#f2ecd8;padding:1rem;overflow-x:auto}
-footer{padding:2rem 6vw;color:#cfc9b4}
+a{color:#8c1f14}
+pre{background:var(--ink);color:#f2ecd8;padding:1rem;overflow-x:auto;font-size:.95rem}
+code{font-family:ui-monospace,Menlo,monospace;font-size:.92em;background:#efe7cd;padding:.05rem .35rem}
+pre code{background:none;padding:0}
+.ring{display:inline-block;border:2px solid var(--red);border-radius:50%;padding:.05rem .55rem;font-family:'Roboto Slab',serif;font-weight:700;color:var(--red)}
+footer{padding:2rem 6vw;color:var(--graphite);max-width:1100px;margin:0 auto}
 </style>
 </head>
 <body>
 <header class="hero">
-<img class="logo" src="assets/logo.png" alt="Follow me car sign logo">
-<img class="banner" src="assets/banner.png" alt="Follow me car with a lit sign guiding a parked jet at blue hour">
+<img class="logo" src="assets/logo.png" alt="Crossword grid logo: black and white cells in a neat block, one centre cell ringed in red pen">
 <h1>Regex-Crossword-Solver</h1>
-<p>A Python solver that parses row and column regular expressions through a PLY grammar, converts the grid into an SMT problem, and returns the letters Z3 finds, backreferences such as \1 included. This page is the apron movement log: each guided arrival gets one row and a result.</p>
-<p><a class="btn" href="https://github.com/Epsilon0xCell/Regex-Crossword-Solver"><span>Open the repo</span></a> <a class="btn" href="#gate"><span>Gate checks</span></a></p>
+<p>A Python solver that parses each row and column regex with a PLY grammar, turns the puzzle into an SMT problem, and solves it with Z3. Backreferences are supported, so puzzles using groups and references such as \1 can be solved, including rectangular puzzles. Codename: Red Robin.</p>
+<p><a class="btn" href="https://github.com/Epsilon0xCell/Regex-Crossword-Solver">Open the repo</a> <a class="btn" href="#gate">Gate checks</a></p>
+<img class="heroimg" src="assets/intro-banner.png" alt="A fountain pen inking the last empty cell of a crossword grid, hatched ink strokes in the cells around it, a red pen lying below">
+<div class="gridstrip" aria-hidden="true"></div>
 </header>
 <main>
-<p><span class="tab">Stand 1</span></p>
-<section class="logrow"><h2>The package</h2><p><code>crossword.py</code> offers <code>solve_crossword</code> with rows, cols, and the optional second clue sets rows2 and cols2, plus <code>solve_regex</code> for a single pattern at a fixed length. It returns a grid of single characters, or None when no solution exists.</p><span class="stamp">Grid or None</span></section>
-<section class="logrow"><h2>The parser pair</h2><p><code>regex_parser.py</code> holds the lexer and grammar described in <code>grammar.md</code>. <code>regex_solver.py</code> builds the Z3 expression for one pattern. Repetition counts may start at zero, and character sets are parsed in sorted order so parse trees stay stable.</p><span class="stamp">Parsed</span></section>
-<section class="logrow"><h2>The worked example</h2><p><code>custom-solver.py</code> tackles the 5 by 14 player puzzle recorded in <code>specs.md</code>, then the small Beatles Beginner Level 1 grid as a bonus check. Its verified output is:</p><pre>H  E
-L  P</pre><span class="stamp">HELP</span></section>
-<section class="logrow"><h2>The shell menu</h2><p><code>ultimate-regex-solver.sh</code>, stated honestly: option 2 runs the bundled example. Options 1, 3 and 4 only fetch outside projects at pinned commits and list files without running them. Credits in the repo name blukat29 and the outside projects the menu only downloads.</p><span class="stamp">Menu logged</span></section>
-<section class="logrow" id="gate"><h2>Gate checks</h2><p>Install with <code>pip install ply z3-solver</code> on Python 3, then run the unittest discovery, which finds 60 tests under <code>crossword/tests</code>.</p><pre>python3 -m unittest discover -s crossword -t .</pre><p>When Z3 finds no solution, the result is None, shown here in signal red as the log records it.</p><span class="stamp none">None</span></section>
-<p><a href="https://github.com/Epsilon0xCell/Regex-Crossword-Solver/tree/main/Regex-Crossword-Solver-Visuals"><span class="lamp"></span>Visuals folder in the repo</a></p>
-<div class="rule"></div>
+<section class="clue"><span class="clueno">1 Across</span><h2>The package</h2><p>The <code>crossword/</code> package does the solving. <code>crossword.py</code> provides <code>solve_crossword(rows, cols, rows2=None, cols2=None)</code> and <code>solve_regex(regex, length)</code>. It returns a list of rows of single characters, or <code>None</code> when Z3 finds no solution. The optional second clue sets, rows2 and cols2, add regexes the same grid must also satisfy.</p></section>
+<section class="clue"><span class="clueno">2 Down</span><h2>The parser pair</h2><p><code>regex_parser.py</code> is the PLY lexer and parser, implementing the grammar recorded in <code>grammar.md</code>. <code>regex_solver.py</code> builds the Z3 expression for one regex at a fixed length. Repetition counts may start at zero: <code>a{0}</code>, <code>a{0,0}</code>, <code>a{0,}</code> and <code>a{0,2}</code> all parse and solve, covered by the <code>test_brace_zero</code> test. Character sets are parsed in sorted order, so parse trees do not depend on hash randomization.</p></section>
+<section class="clue redcell"><span class="clueno">3 Across</span><h2>The worked example</h2><p><code>custom-solver.py</code> solves the 5 by 14 puzzle described in <code>specs.md</code>, a player puzzle from regexcrossword.com that is also linked to a BBC Radio 4 puzzle page in the file header, then solves the Beginner Level 1 Beatles puzzle as a bonus. The verified output ends with the bonus grid:</p><pre>H  E
+L  P</pre></section>
+<section class="clue"><span class="clueno">4 Down</span><h2>The shell menu, stated honestly</h2><p><code>ultimate-regex-solver.sh</code> is an interactive Bash menu, and it is not needed to use the bundled solver. Option 2 runs the bundled <code>custom-solver.py</code> with your normal account; there are no raised privileges anywhere in the menu. Options 1, 3 and 4 download other people's external projects at one pinned commit each, show the file list, and stop: they do not run the downloaded code, and they do not delete a download folder that is already there. Option 1 no longer runs its download with Python 2, because that external MIT Mystery Hunt project is Python 2 era code that should be read before anyone runs it. The script changes into its own folder first, so the example is found wherever it is launched from.</p></section>
+<section class="clue" id="gate"><span class="clueno">5 Across</span><h2>Gate checks</h2><p>Requirements are Python 3 (verified on Python 3.12) plus two packages:</p><pre>pip install ply z3-solver
+python3 custom-solver.py
+python3 -m unittest discover -s crossword -t .</pre><p>Verified on Python 3.12 with ply 3.11 and z3-solver 5.3.3: <span class="ring">60 tests pass</span>, including under different <code>PYTHONHASHSEED</code> values. The suite is noisy by design: the solver tests print the regexes and the Z3 expressions they build. PLY also writes <code>parser.out</code> and <code>parsetab.py</code> next to the package when it runs; <code>make clean</code> removes those byproducts.</p><p>Margin note from the repo: mistyped row counts solve the wrong shape, so check the clue counts before blaming the solver.</p></section>
+<section class="clue"><span class="clueno">6 Down</span><h2>Credits</h2><p>The bundled solver is based on the regex crossword solver by blukat29. The shell menu also links these external projects, which are not part of this repo: <a href="https://github.com/dneiter/regex-crossword">dneiter/regex-crossword</a>, <a href="https://github.com/deepaksood619/RegexCrossword">deepaksood619/RegexCrossword</a>, and <a href="https://github.com/blukat29/regex-crossword-solver">blukat29/regex-crossword-solver</a>.</p><p><a href="https://github.com/Epsilon0xCell/Regex-Crossword-Solver/tree/main/Regex-Crossword-Solver-Visuals">Visuals folder in the repo</a></p></section>
 </main>
-<footer><p>Regex-Crossword-Solver is an apron movement log for a solver that touches no network: it parses patterns, builds Z3 terms, and returns letters.</p></footer>
+<footer><p>Regex-Crossword-Solver is a crossword page for a solver that touches no network: it parses patterns, builds Z3 terms, and returns the letters that satisfy every row and column at once.</p></footer>
 </body>
 </html>
